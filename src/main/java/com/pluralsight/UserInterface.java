@@ -1,16 +1,17 @@
 package com.pluralsight;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 // This class handles the console-based interaction with the user, displaying menus,
 // capturing input, and performing operations on the dealership.
 public class UserInterface {
-
     private static Dealership dealership;
 
     // Private constructor to prevent instantiation
-    private UserInterface() {}
+    private UserInterface() {
+    }
 
     // This method launches the menu and keeps looping until the user exits
     public static void display() {
@@ -30,6 +31,8 @@ public class UserInterface {
             System.out.println("7 - List all vehicles");
             System.out.println("8 - Add a vehicle");
             System.out.println("9 - Remove a vehicle");
+            System.out.println("10 - Sell or Lease a Vehicle");
+            System.out.println("11 - Admin: View Contracts");
             System.out.println("99 - Quit");
             System.out.print("Enter option: ");
 
@@ -45,15 +48,38 @@ public class UserInterface {
 
             // Route to the appropriate method
             switch (option) {
-                case 1: processGetByPriceRequest(); break;
-                case 2: processGetByMakeModelRequest(); break;
-                case 3: processGetByYearRequest(); break;
-                case 4: processGetByColorRequest(); break;
-                case 5: processGetByMileageRequest(); break;
-                case 6: processGetByVehicleTypeRequest(); break;
-                case 7: processAllVehiclesRequest(); break;
-                case 8: processAddVehicleRequest(); break;
-                case 9: processRemoveVehicleRequest(); break;
+                case 1:
+                    processGetByPriceRequest();
+                    break;
+                case 2:
+                    processGetByMakeModelRequest();
+                    break;
+                case 3:
+                    processGetByYearRequest();
+                    break;
+                case 4:
+                    processGetByColorRequest();
+                    break;
+                case 5:
+                    processGetByMileageRequest();
+                    break;
+                case 6:
+                    processGetByVehicleTypeRequest();
+                    break;
+                case 7:
+                    processAllVehiclesRequest();
+                    break;
+                case 8:
+                    processAddVehicleRequest();
+                    break;
+                case 9:
+                    processRemoveVehicleRequest();
+                    break;
+                case 10:
+                    processContractRequest();
+                case 11:
+                    processAdminAccess();
+                    break;
                 case 99:
                     System.out.println("Goodbye!");
                     menuRunning = false;
@@ -197,8 +223,6 @@ public class UserInterface {
             }
         }
 
-
-
         if (vehicleToRemove != null) {
             dealership.removeVehicle(vehicleToRemove);
             DealershipFileManager dfm = new DealershipFileManager();
@@ -207,6 +231,76 @@ public class UserInterface {
         } else {
             System.out.println("Vehicle with that VIN not found.");
         }
+    }
+
+    // contract
+    public static void processContractRequest() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter VIN of the vehicle to sell or lease: ");
+        int vin = scanner.nextInt();
+        scanner.nextLine();
+
+        Vehicle vehicle = null;
+        for (Vehicle v : dealership.getAllVehicles()) {
+            if (v.getVin() == vin) {
+                vehicle = v;
+                break;
+            }
+        }
+
+        if (vehicle == null) {
+            System.out.println("Vehicle not found.");
+            return;
+        }
+
+        System.out.print("Customer name: ");
+        String name = scanner.nextLine();
+
+        System.out.print("Customer email: ");
+        String email = scanner.nextLine();
+
+        System.out.print("Is this a sale or lease? (sale/lease): ");
+        String type = scanner.nextLine().toLowerCase();
+
+        String date = java.time.LocalDate.now().toString();
+        Contract contract;
+
+        if (type.equals("lease")) {
+            int currentYear = LocalDateTime.now().getYear();
+            if (currentYear - vehicle.getYear() > 3) {
+                System.out.println("You cannot lease a vehicle older than 3 years.");
+                return;
+            }
+            contract = new LeaseContract(date, name, email, vehicle);
+        } else {
+            System.out.print("Finance the purchase? (yes/no): ");
+            boolean isFinanced = scanner.nextLine().equalsIgnoreCase("yes");
+            contract = new SalesContract(date, name, email, vehicle, isFinanced);
+        }
+
+        System.out.printf("Contract created. Monthly: $%.2f | Total: $%.2f%n",
+                contract.monthlyPayment(), contract.totalPrice());
+
+        dealership.removeVehicle(vehicle);
+        DealershipFileManager dfm = new DealershipFileManager();
+        dfm.saveDealership(dealership);
+
+        ContractDataManager cdm = new ContractDataManager();
+        cdm.saveContract(contract);
+        System.out.println("Contract saved to contracts.csv");
+    }
+
+    // Admin Access
+    public static void processAdminAccess() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter admin password:");
+        String password = scanner.nextLine();
+        if (!password.equals("Eyob123")) {
+            System.out.println("Access denied");
+            return;
+        }
+        AdminUserInterface.display();
     }
 
     // Utility method to display a list of vehicles, or a message if empty

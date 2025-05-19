@@ -1,0 +1,4 @@
+Type|Date|Customer Name|Email|VIN|Year|Make|Model|Color|Mileage|Price|Tax|Recording Fee|Processing Fee|IsFinanced|Total Price|Monthly Payment
+LEASE|2025-05-17|Eric|Eric@gmail.com|12121|2024|Chevrolet|Impala|Silver|99000|8995.00|N/A|N/A|N/A|N/A|9624.65|267.35
+SALE|2025-05-17|asteway|asteway@gmail.com|72318|2014|Chevrolet|Impala|Silver|99000|8995.00|449.75|100.00|295.00|yes|13887.50|315.12
+SALE|2025-05-18|ebrahim|ebrahim@hotmail.com|68241|2020|Toyota|RAV4|Red|36000|23995.00|1199.75|100.00|495.00|yes|36587.50|830.21

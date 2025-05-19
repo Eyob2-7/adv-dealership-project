@@ -6,7 +6,7 @@ public class Dealership {
     private String name;
     private String address;
     private String phone;
-    private ArrayList<Vehicle> inventory;
+    private final ArrayList<Vehicle> inventory;
 
     // Constructor
     public Dealership(String name, String address, String phone) {
